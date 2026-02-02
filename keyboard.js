@@ -262,7 +262,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
         const glow = document.createElement('div');
         glow.classList.add('glow');
 
-        const glowSize = 250;        // must match CSS width/height
+        const glowSize = 300;        // must match CSS width/height
         const padding = 100;         // safe distance from edges
 
         const x = padding + Math.random() * (window.innerWidth - glowSize - 2 * padding);
@@ -345,3 +345,4 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
     scrollAscii();
 })
+
