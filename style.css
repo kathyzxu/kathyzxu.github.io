@@ -46,11 +46,11 @@ h2 {
 }
 
 .white-key {
-  width: 70px;
+  width: 55px;
   height: 250px;
   margin: 0 2px;
   font-family: 'Courier New';
-  font-size: 16px;
+  font-size: 14px;
   font-weight: bold;
   background: white;
   border: 1px solid black;
@@ -66,11 +66,11 @@ h2 {
 }
 
 .black-key {
-  width: 50px;
-  height: 150px;
+  width: 45px;
+  height: 170px;
   background: black;
   font-family: 'Courier New';
-  font-size: 16px;
+  font-size: 12px;
   font-weight: bold;
   position: absolute;   
   top: 0;
@@ -89,7 +89,7 @@ h2 {
   gap: 10px;
   position: absolute;
   top: 500px;
-  transform: translateX(40px)
+  transform: translateX(30%)
 }
 
 .wave-key {
@@ -127,7 +127,7 @@ h2 {
 
 .ascii-art {
   font-family: monospace;
-  font-size: 4.2px;
+  font-size: 3px;
   font-weight: bold;
   color: rgb(255,255,255);
   text-shadow: 0 0 5px rgb(255,172,255), 0 0 10px rgb(255,172,255);
