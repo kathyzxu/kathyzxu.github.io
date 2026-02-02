@@ -187,6 +187,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
             if (buttons[key]) {
                 buttons[key].style.backgroundColor = keyColors[key];
             }
+
+            triggerGlow();
         }
     }
 
@@ -252,6 +254,28 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
         // array of active oscillators
         activeOscillators[key] = {osc, gainNode, release};
+    }
+
+    // glow in background
+    function triggerGlow() {
+        const ambient = document.getElementById('ambient-glow');
+        const glow = document.createElement('div');
+        glow.classList.add('glow');
+
+        const glowSize = 250;        // must match CSS width/height
+        const padding = 100;         // safe distance from edges
+
+        const x = padding + Math.random() * (window.innerWidth - glowSize - 2 * padding);
+        const y = padding + Math.random() * (window.innerHeight - glowSize - 2 * padding);
+
+        glow.style.left = `${x}px`;
+        glow.style.top = `${y}px`;
+
+        ambient.appendChild(glow);
+
+        glow.addEventListener('animationend', () => {
+            glow.remove();
+        });
     }
 
     // art banner on top of webpage
