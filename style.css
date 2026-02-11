@@ -191,7 +191,7 @@ h2 {
   padding: 15px;
   background: #111;
   color: #fff;
-  min-width: 200px;
+  min-width: 130px;
   border: 1px solid #fff;
   font-family: 'Courier New', monospace;
   font-weight: bold;
@@ -304,3 +304,4 @@ h2 {
     opacity: 0.5;
   }
 }
+
