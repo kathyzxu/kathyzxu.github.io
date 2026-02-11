@@ -3,29 +3,81 @@ document.addEventListener("DOMContentLoaded", function(event) {
     
     // global gain
     const globalGain = audioCtx.createGain(); 
-    globalGain.gain.setValueAtTime(0.3, audioCtx.currentTime)
+    globalGain.gain.setValueAtTime(0.7, audioCtx.currentTime)
     globalGain.connect(audioCtx.destination);
 
-    // default waveform
-    let currentWaveform = 'sine';
+    // Synthesis parameters with defaults
+    const synthParams = {
+        mode: 'none',
+        
+        // Additive synthesis
+        additive: {
+            partials: [
+                { harmonic: 1, amplitude: 0.4 },
+                { harmonic: 2, amplitude: 0.3 },
+                { harmonic: 3, amplitude: 0.2 },
+                { harmonic: 4, amplitude: 0.1 }
+            ],
+            numPartials: 4,
+            spread: 0.5,
+            waveform: 'sine'
+        },
+        
+        // AM synthesis
+        am: {
+            modulationFreq: 5,
+            modulationDepth: 0.5,
+            carrierWaveform: 'sine',  
+            modulatorWaveform: 'sine'
+        },
+        
+        // FM synthesis
+        fm: {
+            modulationFreq: 200,
+            modulationIndex: 10,
+            carrierWaveform: 'sine',  
+            modulatorWaveform: 'sine'
+        },
 
-    // give user option to choose wave form
-    window.addEventListener('keydown', (e) => {
-        if (e.key === '1') setWaveform('sine');
-        if (e.key === '2') setWaveform('square');
-        if (e.key === '3') setWaveform('sawtooth');
-        if (e.key === '4') setWaveform('triangle');
-    });
+        // Simple oscillator settings
+        simple: {
+            waveform: 'sine'
+        },
 
-    const waveKeys = document.querySelectorAll('.wave-key');
+        // LFO settings
+        lfo: {
+            rate: 5,
+            depth: 0,
+            target: 'pitch'
+        }
+    };
 
-    function setWaveform(wave) {
-        currentWaveform = wave;
+    // Mode switching function
+    window.setSynthMode = function(mode) {
+        synthParams.mode = mode;
+        
+        // Update LCD display
+        const display = document.getElementById('mode-display');
+        if (display) {
+            display.textContent = `MODE: ${mode.toUpperCase()}`;
+        }
+        
+        // Update mode buttons
+        const modeButtons = document.querySelectorAll('.synth-mode');
 
-        waveKeys.forEach(key => {
-            key.classList.toggle('active', key.dataset.wave === wave);
+        modeButtons.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.mode === mode);
         });
-    }
+
+        // Show/hide parameter sections
+        const additiveParams = document.getElementById('additive-params');
+        const amParams = document.getElementById('am-params');
+        const fmParams = document.getElementById('fm-params');
+        
+        if (additiveParams) additiveParams.classList.toggle('hidden', mode !== 'additive');
+        if (amParams) amParams.classList.toggle('hidden', mode !== 'am');
+        if (fmParams) fmParams.classList.toggle('hidden', mode !== 'fm');
+    };
 
     const keyboardFrequencyMap = {
         'Z': 261.63,  // C
@@ -57,91 +109,26 @@ document.addEventListener("DOMContentLoaded", function(event) {
     };
 
     const keyColors = {
-        'Z': '#FF7F50',  // C
-        'S': '#ff5c77',  // C#
-        'X': '#ffb056',  // D
-        'D': '#ffea4c',  // D#
-        'C': '#b0e0e6',  // E
-        'V': '#5f9ea0',  // F
-        'G': '#63a9ff',  // F#
-        'B': '#f08080',  // G
-        'H': '#b44aff',  // G#
-        'N': '#ff4500',  // A
-        'J': '#8F00FF',  // A#
-        'M': '#FF1493',  // B
-
-        'Q': '#FFD700',  // C
-        'A': '#ffa07a',  // C#
-        'W': '#f0e68c',  // D
-        'F': '#20b2aa',  // D#
-        'E': '#ff69b4',  // E
-        'R': '#d3ff4f',  // F
-        'K': '#32cd32',  // F#
-        'T': '#ff6347',  // G
-        'L': '#9370db',  // G#
-        'Y': '#be27ff',  // A
-        'O': '#ff00ff',  // A#
-        'U': '#FF69B4',  // B
-        'I': '#ff6987', //C
+        'Z': '#ffb3e6',  'S': '#e6b3ff',  'X': '#ffd4e5',  'D': '#d4f4dd',
+        'C': '#d4f1f4',  'V': '#e5ccff',  'G': '#c9f0ff',  'B': '#ffe5f1',
+        'H': '#f0d4ff',  'N': '#ffd9e8',  'J': '#e0ccff',  'M': '#ffc9e3',
+        'Q': '#d9b3ff',  'A': '#ffccf2',  'W': '#ffffcc',  'F': '#ccf2ff',
+        'E': '#ffd6f0',  'R': '#f0ffcc',  'K': '#ccffdd',  'T': '#ffd4cc',
+        'L': '#e6d9ff',  'Y': '#f2ccff',  'O': '#ffc9ff',  'U': '#ffd9f2',
+        'I': '#ffb3d9',
     };
 
-    // set key orders
-    const whiteKeyOrder = [
-        'Z', // C
-        'X', // D
-        'C', // E
-        'V', // F
-        'B', // G
-        'N', // A
-        'M', // B
-
-        'Q', // C
-        'W', // D
-        'E', // E
-        'R', // F
-        'T', // G
-        'Y', // A
-        'U', // B
-        'I', // C
-
-    ];
-
-    const blackKeys = [
-        'S', // C#
-        'D', // D#
-        'G', // F#
-        'H', // G#
-        'J', // A#
-
-        'A', // C# (upper)
-        'F', // D#
-        'K', // F#
-        'L', // G#
-        'O'  // A#
-    ];
-
+    const whiteKeyOrder = ['Z', 'X', 'C', 'V', 'B', 'N', 'M', 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I'];
+    const blackKeys = ['S', 'D', 'G', 'H', 'J', 'A', 'F', 'K', 'L', 'O'];
     const blackKeyOrder = blackKeys;
 
-    // containers
     const whiteContainer = document.getElementById('white-keys');
     const blackContainer = document.getElementById('black-keys');
     const buttons = {};
 
-    // posiiton black keys between the correct white keys
     const blackOffsets = {
-        'S': -378,   // C#
-        'D': -318,  // D#
-
-        'G': -200,  // F#
-        'H': -140,  // G#
-        'J': -80,  // A#
-
-        'A': 37,  // C# upper
-        'F': 97,  // D# upper
-
-        'K': 213,  // F# upper
-        'L': 273,  // G# upper
-        'O': 333   // A# upper
+        'S': -340, 'D': -284, 'G': -177, 'H': -123, 'J': -68,
+        'A': 39, 'F': 94, 'K': 201, 'L': 256, 'O': 310
     };
 
     // create white key buttons
@@ -166,22 +153,334 @@ document.addEventListener("DOMContentLoaded", function(event) {
         buttons[key] = btn;
     }
 
-    function keyCodeToChar(code) {
-        return String.fromCharCode(code);
+    const waveKeys = document.querySelectorAll('.wave-key');
+    
+    function setWaveform(wave) {
+        synthParams.simple.waveform = wave;
+        synthParams.additive.waveform = wave;
+        synthParams.am.carrierWaveform = wave;
+        synthParams.fm.carrierWaveform = wave;
+        
+        waveKeys.forEach(key => {
+            key.classList.toggle('active', key.dataset.wave === wave);
+        });
+        console.log(`Waveform set to ${wave}`);
     }
 
+    // Add click listeners to wave keys
+    waveKeys.forEach(key => {
+        key.addEventListener('click', () => {
+            setWaveform(key.dataset.wave);
+        });
+    });
+
+    // Keyboard shortcuts for waveforms & synth mode
+    window.addEventListener('keydown', (e) => {
+
+        if (e.key === '1') setWaveform('sine');
+        if (e.key === '2') setWaveform('square');
+        if (e.key === '3') setWaveform('sawtooth');
+        if (e.key === '4') setWaveform('triangle');
+
+        if (e.key === '5') setSynthMode('none');
+        if (e.key === '6') setSynthMode('additive');
+        if (e.key === '7') setSynthMode('am');
+        if (e.key === '8') setSynthMode('fm');
+    });
+
+
+    // Helper function to update additive partials
+    function updateAdditivePartials(num, spread) {
+        synthParams.additive.partials = [];
+        for (let i = 0; i < num; i++) {
+            const harmonic = i + 1;
+            const amplitude = (0.5 / harmonic) * (1 - spread * 0.5);
+            synthParams.additive.partials.push({ harmonic, amplitude });
+        }
+    }
+
+    // Setup parameter controls
+    function setupParameterControls() {
+        // Additive controls
+        const addPartials = document.getElementById('additive-partials');
+        const addSpread = document.getElementById('additive-spread');
+        
+        if (addPartials) {
+            addPartials.addEventListener('input', (e) => {
+                const num = parseInt(e.target.value);
+                synthParams.additive.numPartials = num;
+                document.getElementById('additive-partials-val').textContent = num;
+                updateAdditivePartials(num, synthParams.additive.spread);
+            });
+        }
+
+        if (addSpread) {
+            addSpread.addEventListener('input', (e) => {
+                const spread = parseInt(e.target.value) / 100;
+                synthParams.additive.spread = spread;
+                document.getElementById('additive-spread-val').textContent = e.target.value;
+                updateAdditivePartials(synthParams.additive.numPartials, spread);
+            });
+        }
+
+        // AM controls
+        const amModFreq = document.getElementById('am-mod-freq');
+        const amDepth = document.getElementById('am-depth');
+        
+        if (amModFreq) {
+            amModFreq.addEventListener('input', (e) => {
+                synthParams.am.modulationFreq = parseFloat(e.target.value);
+                document.getElementById('am-mod-freq-val').textContent = parseFloat(e.target.value).toFixed(1) + ' Hz';
+            });
+        }
+
+        if (amDepth) {
+            amDepth.addEventListener('input', (e) => {
+                synthParams.am.modulationDepth = parseInt(e.target.value) / 100;
+                document.getElementById('am-depth-val').textContent = e.target.value + '%';
+            });
+        }
+
+        // FM controls
+        const fmModFreq = document.getElementById('fm-mod-freq');
+        const fmIndex = document.getElementById('fm-index');
+        
+        if (fmModFreq) {
+            fmModFreq.addEventListener('input', (e) => {
+                synthParams.fm.modulationFreq = parseInt(e.target.value);
+                document.getElementById('fm-mod-freq-val').textContent = e.target.value + ' Hz';
+            });
+        }
+
+        if (fmIndex) {
+            fmIndex.addEventListener('input', (e) => {
+                synthParams.fm.modulationIndex = parseFloat(e.target.value);
+                document.getElementById('fm-index-val').textContent = parseFloat(e.target.value).toFixed(1);
+            });
+        }
+
+        // LFO controls
+        const lfoRate = document.getElementById('lfo-rate');
+        const lfoDepth = document.getElementById('lfo-depth');
+        const lfoTarget = document.getElementById('lfo-target');
+        
+        if (lfoRate) {
+            lfoRate.addEventListener('input', (e) => {
+                synthParams.lfo.rate = parseFloat(e.target.value);
+                document.getElementById('lfo-rate-val').textContent = parseFloat(e.target.value).toFixed(1) + ' Hz';
+            });
+        }
+
+        if (lfoDepth) {
+            lfoDepth.addEventListener('input', (e) => {
+                synthParams.lfo.depth = parseInt(e.target.value) / 100;
+                document.getElementById('lfo-depth-val').textContent = e.target.value + '%';
+            });
+        }
+
+        if (lfoTarget) {
+            lfoTarget.addEventListener('change', (e) => {
+                synthParams.lfo.target = e.target.value;
+            });
+        }
+    }
+
+    // Initialize parameter controls
+    setupParameterControls();
+
+    // Synthesizer class
+    class Synth {
+        constructor(frequency, params) {
+            this.frequency = frequency;
+            this.params = params;
+            this.nodes = [];
+            this.gainNode = audioCtx.createGain();
+            this.gainNode.connect(globalGain);
+            this.gainNode.gain.value = 0;
+        }
+        
+        start() {
+            const now = audioCtx.currentTime;
+            const attack = 0.01;
+            const decay = 0.01;
+            const sustain = 0.5;
+            
+            // Create synthesis based on mode
+            switch(this.params.mode) {
+                case 'none':
+                    this.createSimple();
+                    break;
+                case 'additive':
+                    this.createAdditive();
+                    break;
+                case 'am':
+                    this.createAM();
+                    break;
+                case 'fm':
+                    this.createFM();
+                    break;
+            }
+
+            // Apply LFO if depth > 0
+            if (this.params.lfo.depth > 0) {
+                this.applyLFO();
+            }
+            
+            // Apply envelope (attack + decay to sustain level)
+            this.gainNode.gain.setValueAtTime(0.001, now);
+            this.gainNode.gain.linearRampToValueAtTime(0.3, now + attack);
+            this.gainNode.gain.exponentialRampToValueAtTime(0.3 * sustain, now + attack + decay);
+        }
+
+        stop() {
+            const now = audioCtx.currentTime;
+            const release = 0.3;
+            
+            // Apply release
+            this.gainNode.gain.cancelScheduledValues(now);
+            this.gainNode.gain.setValueAtTime(this.gainNode.gain.value, now);
+            this.gainNode.gain.exponentialRampToValueAtTime(0.001, now + release);
+            
+            // Clean up nodes after release
+            setTimeout(() => {
+                this.nodes.forEach(node => {
+                    if (node.stop) node.stop();
+                    if (node.disconnect) node.disconnect();
+                });
+                this.gainNode.disconnect();
+            }, release * 1000 + 100);
+        }
+
+        applyLFO() {
+            const lfo = audioCtx.createOscillator();
+            lfo.frequency.value = this.params.lfo.rate;
+            lfo.type = 'sine';
+            
+            const lfoGain = audioCtx.createGain();
+            
+            if (this.params.lfo.target === 'pitch') {
+                // Vibrato - modulate frequency
+                lfoGain.gain.value = this.frequency * 0.02 * this.params.lfo.depth;
+                
+                this.nodes.forEach(node => {
+                    if (node.frequency) {
+                        lfo.connect(lfoGain);
+                        lfoGain.connect(node.frequency);
+                    }
+                });
+            } else if (this.params.lfo.target === 'volume') {
+                // Tremolo - modulate volume
+                lfoGain.gain.value = this.params.lfo.depth * 0.3;
+                lfo.connect(lfoGain);
+                lfoGain.connect(this.gainNode.gain);
+            }
+            
+            lfo.start();
+            this.nodes.push(lfo, lfoGain);
+        }
+        
+        createSimple() {
+            const osc = audioCtx.createOscillator();
+            osc.frequency.value = this.frequency;
+            osc.type = this.params.simple.waveform;
+            
+            osc.connect(this.gainNode);
+            osc.start();
+            
+            this.nodes.push(osc);
+        }
+
+        createAdditive() {
+            this.params.additive.partials.forEach(partial => {
+                const osc = audioCtx.createOscillator();
+                osc.frequency.value = this.frequency * partial.harmonic;
+                osc.type = this.params.additive.waveform;
+                
+                const partialGain = audioCtx.createGain();
+                partialGain.gain.value = partial.amplitude;
+                
+                osc.connect(partialGain);
+                partialGain.connect(this.gainNode);
+                osc.start();
+                
+                this.nodes.push(osc, partialGain);
+            });
+        }
+        
+        createAM() {
+            // Carrier
+            const carrier = audioCtx.createOscillator();
+            carrier.frequency.value = this.frequency;
+            carrier.type = this.params.am.carrierWaveform;;
+            
+            // Modulator
+            const modulator = audioCtx.createOscillator();
+            modulator.frequency.value = this.params.am.modulationFreq;
+            modulator.type = this.params.am.modulatorWaveform;
+            
+            // Modulation gain (controls depth)
+            const modGain = audioCtx.createGain();
+            modGain.gain.value = this.params.am.modulationDepth;
+            
+            // DC offset (so modulation ranges from 0 to 1)
+            const dcOffset = audioCtx.createGain();
+            dcOffset.gain.value = 1 - this.params.am.modulationDepth;
+            
+            // Connect AM chain
+            modulator.connect(modGain);
+            modGain.connect(dcOffset.gain);
+            
+            carrier.connect(dcOffset);
+            dcOffset.connect(this.gainNode);
+            
+            carrier.start();
+            modulator.start();
+            
+            this.nodes.push(carrier, modulator, modGain, dcOffset);
+        }
+        
+        createFM() {
+            // Carrier
+            const carrier = audioCtx.createOscillator();
+            carrier.frequency.value = this.frequency;
+            carrier.type = this.params.fm.carrierWaveform;
+            
+            // Modulator
+            const modulator = audioCtx.createOscillator();
+            modulator.frequency.value = this.params.fm.modulationFreq;
+            modulator.type = this.params.fm.modulatorWaveform;
+            
+            // Modulation gain (controls index)
+            const modGain = audioCtx.createGain();
+            modGain.gain.value = this.params.fm.modulationIndex * this.params.fm.modulationFreq;
+            
+            // Connect FM chain
+            modulator.connect(modGain);
+            modGain.connect(carrier.frequency);
+            
+            carrier.connect(this.gainNode);
+            
+            carrier.start();
+            modulator.start();
+            
+            this.nodes.push(carrier, modulator, modGain);
+        }
+    }
+
+    // Active synths
+    const activeSynths = {};
 
     // create key press & release events
     window.addEventListener('keydown', keyDown, false);
     window.addEventListener('keyup', keyUp, false);
 
-    activeOscillators = {}
-
     // play corresponding note when user presses a valid key 
     function keyDown(event) {
         const key = event.key.toUpperCase();
-        if (keyboardFrequencyMap[key] && !activeOscillators[key]) {
-            playNote(key);
+        if (keyboardFrequencyMap[key] && !activeSynths[key]) {
+            const synth = new Synth(keyboardFrequencyMap[key], synthParams);
+            synth.start();
+            activeSynths[key] = synth;
 
             // change key color
             if (buttons[key]) {
@@ -195,65 +494,15 @@ document.addEventListener("DOMContentLoaded", function(event) {
     // releases corresponding notes when user stops pressing a key
     function keyUp(event) {
         const key = event.key.toUpperCase();
-        if (activeOscillators[key]) {
-            // get current oscillator
-            const {osc, gainNode, release} = activeOscillators[key]; 
-            const now = audioCtx.currentTime;
+        if (activeSynths[key]) {
+            activeSynths[key].stop();
+            delete activeSynths[key];
 
-            // set target volume close to 0 after release time
-            gainNode.gain.setTargetAtTime(0.0001, now, release);
-
-            // schedule stop time (longer for exponential)
-            osc.stop(now + release * 7); 
-
-            // remove from active oscillators array
-            setTimeout(() => {
-                delete activeOscillators[key];
-
-                // return to original color
-                if (buttons[key]) {
-                    buttons[key].style.backgroundColor = blackKeys.includes(key) ? 'black' : 'white';
-                }
-            }, release * 5000); 
+            // return to original color
+            if (buttons[key]) {
+                buttons[key].style.backgroundColor = blackKeys.includes(key) ? 'black' : 'white';
+            }
         }
-    }
-
-    // create gain node + ADSR for each note (polyphonic mode)
-    function playNote(key) {
-        const now = audioCtx.currentTime;
-        const osc = audioCtx.createOscillator();
-
-        // gain node for each independent key
-        const gainNode = audioCtx.createGain();
-        const maxVolume = 0.8;
-        const MAX_POLYPHONY = 8; // maximum number of simultaneous notes
-
-        // set volume for each individual note depending on how many keys are currently pressed 
-        const noteVolume = maxVolume / Math.min(MAX_POLYPHONY, Object.keys(activeOscillators).length + 1);
-
-        // ADSR parameters
-        const attack = 0.01;
-        const decay = 0.01;
-        const sustain = 0.5;
-        const release = 0.01;
-
-        // read the pressed key
-        osc.type = currentWaveform;
-        osc.frequency.setValueAtTime(keyboardFrequencyMap[key], now);
-
-        // start at value close to 0 for exponential ramp
-        gainNode.gain.setValueAtTime(0.001, now);
-
-        // attack & decay
-        gainNode.gain.linearRampToValueAtTime(noteVolume, now + attack);
-        gainNode.gain.exponentialRampToValueAtTime(noteVolume * sustain, now + attack + decay);
-
-        // connect to global gain
-        osc.connect(gainNode).connect(globalGain);
-        osc.start();
-
-        // array of active oscillators
-        activeOscillators[key] = {osc, gainNode, release};
     }
 
     // glow in background
@@ -262,8 +511,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
         const glow = document.createElement('div');
         glow.classList.add('glow');
 
-        const glowSize = 300;        // must match CSS width/height
-        const padding = 100;         // safe distance from edges
+        const glowSize = 300;
+        const padding = 100;
 
         const x = padding + Math.random() * (window.innerWidth - glowSize - 2 * padding);
         const y = padding + Math.random() * (window.innerHeight - glowSize - 2 * padding);
@@ -277,72 +526,4 @@ document.addEventListener("DOMContentLoaded", function(event) {
             glow.remove();
         });
     }
-
-    // art banner on top of webpage
-    const asciiStrip = document.getElementById('ascii-strip');
-    const asciiArt = `
-⠀⠀⠀⠀⣠⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣴⡇⠀⠀⠀⠘⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⣼⣿⣿⣿⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡼⣡⣇⠀⠀⠀⠀⣧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⢠⣿⣿⠟⢻⣿⠤⠖⠒⠚⠉⠉⠉⠉⠉⠉⢩⡟⣹⠋⣿⠉⠉⠛⠒⣺⡤⢄⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⢸⣿⡟⠀⢠⣿⡇⠀⢀⡄⠀⠀⠀⠀⠀⠀⣏⣼⣃⣠⣽⡤⠤⢴⠯⣭⠧⢼⣎⡳⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠈⣿⡇⠀⣼⣿⡇⠀⠰⣇⣠⡤⠴⠒⠚⠉⣿⠁⣤⣾⣿⡇⢀⣈⣉⣥⡤⢼⠬⣯⣛⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡄⠀⠀⠀⠀⠀
-⠀⠀⠀⢻⣧⣼⣿⣿⠧⠒⠋⣏⣄⠀⠀⠀⠀⠀⢹⣀⡿⠿⠛⠉⠉⠁⠀⣀⣴⣾⠾⠓⠲⡯⣧⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣞⣇⠀⠀⠀⠀⠀
-⠀⠀⠀⣠⣿⣿⣿⡟⠀⠀⠀⣇⡿⠃⣀⡤⠴⠚⢹⡇⠀⠀⣀⡠⠖⠚⠉⢀⣀⠤⠖⠚⣹⣋⣏⡟⣦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⢯⠏⢿⠀⠀⠀
-⠀⠀⣴⣿⣿⣿⡟⠀⠀⠀⢀⡫⠖⠋⠁⠀⠀⣠⣤⣧⠴⠋⠁⠀⣀⡤⠚⠉⠀⠀⠀⣰⠃⡽⠣⣏⡧⢧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⠀⢸⣧⣴⣾⣀⠀
-⢀⣾⣿⣿⡿⢻⣷⢀⡤⠞⠉⠀⠀⠀⠀⢀⣼⣿⡿⠏⠀⣀⡴⠛⠁⠀⠀⠀⠀⢀⡴⠁⡴⠁⡼⢸⣷⢸⠀⠀⠀⠀⠈⣧⠀⠀⠀⣀⡠⠔⠚⠉⠁⠀⠀⠀⠈⡇⠉⠁⠀
-⣼⣿⣿⠟⠀⣨⣿⣿⣿⣷⣦⡀⢀⣠⠖⠋⠀⠀⢀⣤⠞⠁⠀⠀⠀⠀⠀⣦⣠⠞⢶⡞⠣⣼⢁⡼⢁⡏⠀⠀⠀⠀⠀⢘⣧⠔⠋⠁⢀⡀⣀⡠⠴⠒⠚⢩⣽⡯⠉⠉⠉
-⣿⣿⡏⠀⣾⣿⣿⣿⡿⢿⣿⣿⣏⠁⠀⠀⢠⡴⠋⠀⠀⠀⠀⠀⠀⠀⠀⢰⠛⢦⠎⢉⠿⣌⡞⢀⡞⠀⠀⠀⢀⡤⠚⠉⠘⣇⣀⠤⠚⣯⠁⠀⠀⣀⣤⠼⠟⠓⠒⠒⠒⠒
-⣿⣿⡇⠰⣿⣿⠁⢻⣧⠀⠹⣿⣿⠀⣠⠞⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇⢠⢯⣷⡏⢰⢿⢇⠞⠀⣀⠴⠚⠁⠀⢀⣠⡶⢻⡇⠀⢀⡸⡶⠚⠉⠀⢸⡓⣦⣠⠤⠤⠒
-⠘⣿⣇⠀⢻⣿⣄⠈⣿⡆⠀⣿⣿⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠱⣮⣸⣋⣰⣋⣤⠾⠒⠉⠀⣠⣆⡠⠖⠋⠹⠤⣞⠴⠚⠁⠀⢻⣀⡤⠖⠊⡏⢸⠇⠀⣀⠤
-⠀⠘⢿⣷⣄⡈⠛⠛⢸⣿⣾⡿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⢾⣠⠇⢠⠋⠀⣀⣠⣾⡟⡏⠀⠀⣀⠴⠊⠁⠀⢀⡠⣶⣿⡇⠀⢀⣴⣾⠼⠚⠉⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠈⠙⠛⠿⠿⠟⢻⣯⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⢾⢉⠏⠉⠉⠁⣻⢋⣤⡧⠴⠋⢷⡀⢀⡤⠚⠉⠀⠿⠿⣃⠴⠚⠛⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⢀⣀⡀⠀⠈⣿⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⣽⠒⠠⠤⠔⣿⠛⠛⠁⠀⣀⡬⢿⠁⠀⠀⠀⣀⡴⠚⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⣰⣿⣿⣿⣆⠀⢸⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⠦⣀⣀⣤⣿⣀⡠⠴⠊⠁⠀⢈⣧⣀⠴⠚⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⢻⣿⣿⣿⠟⢀⣼⡿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢧⡀⠈⠉⠁⠀⠀⠀⠀⢀⣠⡿⣻⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⠈⠛⠿⠿⠿⠿⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠒⠲⠦⠶⠒⠚⠉⠁⠀⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀
-    `;
-
-        //     ⢠⡾⠲⠶⣤⣀⣠⣤⣤⣤⡿⠛⠿⡴⠾⠛⢻⡆⠀⠀⠀
-        // ⠀⠀⠀⣼⠁⠀⠀⠀⠉⠁⠀⢀⣿⠐⡿⣿⠿⣶⣤⣤⣷⡀⠀⠀
-        // ⠀⠀⠀⢹⡶⠀⠀⠀⠀⠀⠀⠈⢯⣡⣿⣿⣀⣸⣿⣦⢓⡟⠀⠀
-        // ⠀⠀⢀⡿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠹⣍⣭⣾⢱⡀⠀
-        // ⠀⣀⣸⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣸⣆
-        // ⠈⠉⢹⣉⡁⠀⢸⣿⠀⠀⠀⠀⠀⠀⠀⠀⣿⡇⠀⢀⣉⣿⣈⠁
-        // ⠀⠐⠋⢯⣁⣄⢀⣀⣀⡀⠀⠯⠽⠀⢀⣀⣀⡀⠀⣤⡟⠀⠉⠀
-        // ⠀⠀⠴⠛⠙⣷⠋⠉⠉⠙⣆⠀⠀⢰⡟⠉⠈⠙⢷⠟⠉⠙⠂⠀
-        // ⠀⠀⠀⠀⠀⠘⣆⣠⣤⣴⠟⠛⠛⠛⢧⣤⣤⣀⡾
-
-    function createAsciiCopy() {
-    const span = document.createElement('span');
-    span.classList.add('ascii-art');
-    span.textContent = asciiArt;
-    return span;
-    }
-
-    // populate with initial copies
-    for (let i = 0; i < 21; i++) {
-    asciiStrip.appendChild(createAsciiCopy());
-    }
-
-    let offset = 0;
-    function scrollAscii() {
-    offset -= 1; // pixels per frame
-    asciiStrip.style.transform = `translateX(${offset}px)`;
-
-    const first = asciiStrip.firstElementChild;
-
-    if (first) {
-        // move the first copy to the right when it is almost out of screen
-        if (first.getBoundingClientRect().right < window.innerWidth * 0.001) {
-            asciiStrip.appendChild(first); 
-            offset += first.offsetWidth + 50;   // margin 
-        }
-    }
-
-    requestAnimationFrame(scrollAscii);
-    }
-
-    scrollAscii();
 })
-
