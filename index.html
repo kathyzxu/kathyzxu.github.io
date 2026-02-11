@@ -22,11 +22,92 @@
 
         <script src="keyboard.js"></script> 
 
+    <div id="synth-controls">
+        <label>synthesis:</label>
+        <button class="synth-mode active" data-mode="none" onclick="setSynthMode('none')">
+            none
+        </button>
+        <button class="synth-mode" data-mode="additive" onclick="setSynthMode('additive')">
+            additive
+        </button>
+        <button class="synth-mode" data-mode="am" onclick="setSynthMode('am')">
+            am
+        </button>
+        <button class="synth-mode" data-mode="fm" onclick="setSynthMode('fm')">
+            fm
+        </button>
+    </div>
+
+    <div id="wave-controls">
+        <label>waveform:</label>
         <div id="wave-keys">
-            <div class="wave-key" data-wave="sine">sine (1)</div>
-            <div class="wave-key" data-wave="square">square (2)</div>
-            <div class="wave-key" data-wave="sawtooth">sawtooth (3)</div>
-            <div class="wave-key" data-wave="triangle">triangle (4)</div>
+            <div class="wave-key" data-wave="sine">sine</div>
+            <div class="wave-key" data-wave="square">square</div>
+            <div class="wave-key" data-wave="sawtooth">sawtooth</div>
+            <div class="wave-key" data-wave="triangle">triangle</div>
+        </div>
+    </div>
+
+        <!-- Parameter Sliders -->
+        <div id="synth-params">
+            <!-- Additive Parameters -->
+            <div class="param-section hidden" id="additive-params">
+                <div class="param-title">additive</div>
+                <div class="param-control">
+                    <label>partials: <span id="additive-partials-val">4</span></label>
+                    <input type="range" id="additive-partials" min="1" max="8" value="4" step="1">
+                </div>
+                <div class="param-control">
+                    <label>spread: <span id="additive-spread-val">50</span></label>
+                    <input type="range" id="additive-spread" min="0" max="100" value="50">
+                </div>
+            </div>
+
+            <!-- AM Parameters -->
+            <div class="param-section hidden" id="am-params">
+                <div class="param-title">AM Synthesis</div>
+                <div class="param-control">
+                    <label>mod freq: <span id="am-mod-freq-val">5.0 Hz</span></label>
+                    <input type="range" id="am-mod-freq" min="0.1" max="200" value="5" step="0.1">
+                </div>
+                <div class="param-control">
+                    <label>depth: <span id="am-depth-val">50%</span></label>
+                    <input type="range" id="am-depth" min="0" max="100" value="50">
+                </div>
+            </div>
+
+            <!-- FM Parameters -->
+            <div class="param-section hidden" id="fm-params">
+                <div class="param-title">FM Synthesis</div>
+                <div class="param-control">
+                    <label>mod freq: <span id="fm-mod-freq-val">200 Hz</span></label>
+                    <input type="range" id="fm-mod-freq" min="1" max="2000" value="200" step="10">
+                </div>
+                <div class="param-control">
+                    <label>mod index: <span id="fm-index-val">10.0</span></label>
+                    <input type="range" id="fm-index" min="0" max="30" value="10" step="0.5">
+                </div>
+            </div>
+
+            <!-- LFO Parameters -->
+            <div class="param-section" id="lfo-params">
+                <div class="param-title">LFO</div>
+                <div class="param-control">
+                    <label>freq: <span id="lfo-rate-val">5.0 Hz</span></label>
+                    <input type="range" id="lfo-rate" min="0.1" max="20" value="5" step="0.1">
+                </div>
+                <div class="param-control">
+                    <label>depth: <span id="lfo-depth-val">0%</span></label>
+                    <input type="range" id="lfo-depth" min="0" max="100" value="0">
+                </div>
+                <div class="param-control">
+                    <label>target:</label>
+                    <select id="lfo-target">
+                        <option value="pitch">pitch</option>
+                        <option value="volume">volume</option>
+                    </select>
+                </div>
+            </div>
         </div>
 
     </div>
