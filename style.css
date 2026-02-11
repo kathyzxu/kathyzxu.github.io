@@ -2,41 +2,49 @@ body, html {
   height: 100%;
   margin: 0;
   display: flex;
-  justify-content: center; /* horizontal centering */
-  align-items: center;     /* vertical centering */
-  background: #000000;        /* background color */
+  justify-content: center;
+  align-items: center;
+  background: #000000;
   color: white;
 }
 
+/* ---------------- HEADERS ---------------- */
+
 h1 {
-    font-family: 'Courier New', Courier, monospace;
-    font-weight: bold;
-    font-size: 26px;
-    margin-top: 0;
-    color: white;
-    text-shadow: 0 0 5px rgb(255, 100, 255), 0 0 10px rgb(255, 200, 255), 0 0 20px rgb(255, 200, 255);
-    transform: translateY(-30px);
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  font-size: 24px;
+  margin-top: 0;
+  color: white;
+  text-shadow: 0 0 5px rgb(255, 100, 255),
+               0 0 10px rgb(255, 200, 255),
+               0 0 20px rgb(255, 200, 255);
+  transform: translateY(-20px);
 }
 
 h2 {
-    font-family: 'Courier New', Courier, monospace;
-    font-weight: bold;
-    font-size: 10px;
-    color: white;
-    text-shadow: 0 0 5px rgb(255, 100, 255), 0 0 10px rgb(255, 200, 255), 0 0 20px rgb(255, 200, 255);
-    transform: translateY(-50px);
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  font-size: 10px;
+  color: white;
+  text-shadow: 0 0 5px rgb(255, 100, 255),
+               0 0 10px rgb(255, 200, 255),
+               0 0 20px rgb(255, 200, 255);
+  transform: translateY(-50px);
 }
 
 #wrapper {
   text-align: center;
 }
 
+/* ---------------- PIANO ---------------- */
+
 #piano {
   display: flex;
   position: relative;
   flex-direction: column;
-  align-items: center; 
-  margin-top: 30px;
+  align-items: center;
+  margin-top: 40px;
   transform: translateY(-30px);
 }
 
@@ -46,7 +54,7 @@ h2 {
 }
 
 .white-key {
-  width: 55px;
+  width: 50px;
   height: 250px;
   margin: 0 2px;
   font-family: 'Courier New';
@@ -57,7 +65,7 @@ h2 {
   border-radius: 4px;
   position: relative;
   z-index: 1;
-  box-shadow: 0 0 30px rgb(255, 150, 255); 
+  box-shadow: 0 0 30px rgb(255, 150, 255);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -66,13 +74,13 @@ h2 {
 }
 
 .black-key {
-  width: 45px;
+  width: 35px;
   height: 170px;
   background: black;
   font-family: 'Courier New';
   font-size: 12px;
   font-weight: bold;
-  position: absolute;   
+  position: absolute;
   top: 0;
   z-index: 2;
   border-radius: 3px;
@@ -83,18 +91,61 @@ h2 {
   padding-bottom: 5px;
 }
 
+/* ---------------- SYNTH CONTROLS (TOP LEFT) ---------------- */
+
+#synth-controls {
+  position: absolute;
+  top: 40px;
+  left: 20px;
+  z-index: 1000;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+#synth-controls label {
+  color: white;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  font-size: 14px;
+  text-shadow: 0 0 5px rgb(255, 100, 255);
+}
+
+/* ---------------- WAVE CONTROLS (UNDER SYNTH) ---------------- */
+
+#wave-controls {
+  position: absolute;
+  top: 100px;
+  left: 20px;
+  z-index: 1000;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+#wave-controls label {
+  color: white;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  font-size: 14px;
+  text-shadow: 0 0 5px rgb(255, 100, 255);
+}
+
 #wave-keys {
   display: flex;
   flex-direction: row;
-  gap: 10px;
-  position: absolute;
-  top: 500px;
-  transform: translateX(30%)
+  gap: 8px;
 }
 
+/* ---------------- SHARED BUTTON STYLE ---------------- */
+
+.synth-mode,
 .wave-key {
-  width: 120px;
-  height: 40px;
+  padding: 8px 12px;
   background: #111;
   color: #fff;
   border: 1px solid #fff;
@@ -102,60 +153,154 @@ h2 {
   font-weight: bold;
   font-size: 12px;
   text-align: center;
-  align-items: center;
-  line-height: 40px; /* vertical center */
   box-shadow: 0 0 10px rgb(255, 150, 255);
-  border-radius: 6px;
+  border-radius: 7px;
   user-select: none;
-  transition: all 0.1s ease;
+  transition: all 0.2s ease;
+  cursor: pointer;
 }
 
+.synth-mode:hover,
+.wave-key:hover {
+  background: #222;
+  transform: translateY(-2px);
+  box-shadow: 0 0 15px rgb(255, 150, 255);
+}
+
+.synth-mode.active,
 .wave-key.active {
-  box-shadow: 0 0 15px rgb(255, 150, 255), 0 0 30px rgb(255, 105, 180);
+  box-shadow: 0 0 15px rgb(255, 150, 255),
+              0 0 30px rgb(255, 105, 180);
+  background: #333;
+  border: 2px solid #ffb3e6;
+  transform: scale(1.1);
 }
 
-.ascii-strip {
-  position: fixed;
-  top: 30px;
-  left: 0;
-  width: 100%;
-  overflow: hidden;
+/* ---------------- PARAM / TOGGLES PANEL (TOP RIGHT) ---------------- */
+
+#synth-params {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+
   display: flex;
-  white-space: pre;       /* preserve spacing in ASCII */
-  pointer-events: none;   /* so you can still click keys */
+  flex-direction: column;
+  gap: 15px;
+
+  padding: 15px;
+  background: #111;
+  color: #fff;
+  min-width: 200px;
+  border: 1px solid #fff;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  font-size: 12px;
+  box-shadow: 0 0 10px rgb(255, 150, 255);
+  border-radius: 5px;
 }
 
-.ascii-art {
-  font-family: monospace;
-  font-size: 3px;
-  font-weight: bold;
-  color: rgb(255,255,255);
-  text-shadow: 0 0 5px rgb(255,172,255), 0 0 10px rgb(255,172,255);
-  margin-right: 50px;      
-  display: inline-block;
-  flex-shrink:0;
+/* ---------------- PARAM SECTIONS ---------------- */
+
+.param-section {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
 }
+
+.param-section.hidden {
+  display: none;
+}
+
+.param-title {
+  color: #ffb3e6;
+  font-weight: bold;
+  font-size: 14px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  text-shadow: 0 0 5px rgba(255, 179, 230, 0.8);
+}
+
+.param-control {
+  margin-bottom: 10px;
+}
+
+.param-control label {
+  display: block;
+  color: #fff;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.param-control span {
+  color: #7dff7d;
+  font-weight: bold;
+  text-shadow: 0 0 5px rgba(125, 255, 125, 0.5);
+}
+
+.param-control input[type="range"] {
+  width: 100%;
+  height: 6px;
+  background: linear-gradient(to right, #333, #666);
+  border-radius: 3px;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.param-control input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #e6b3ff;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(230, 179, 255, 0.8);
+}
+
+.param-control input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: #e6b3ff;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(230, 179, 255, 0.8);
+  border: none;
+}
+
+.param-control select {
+  width: 100%;
+  background: #333;
+  color: #7dff7d;
+  border: 1px solid #555;
+  padding: 5px;
+  border-radius: 3px;
+  font-family: 'Courier New';
+  font-size: 12px;
+}
+
+/* ---------------- GLOW EFFECT ---------------- */
 
 .glow {
-    position: absolute;
-    width: 300px;
-    height: 300px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(255, 131, 228, 0.7) 0%, rgba(255,255,255,0) 50%);
-    transform: scale(0);
-    pointer-events: none;
-    opacity: 0;
-    animation: pulseGlow 1s ease-out forwards;
+  position: absolute;
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+              rgba(255, 131, 228, 0.7) 0%,
+              rgba(255,255,255,0) 50%);
+  transform: scale(0);
+  pointer-events: none;
+  opacity: 0;
+  animation: pulseGlow 1s ease-out forwards;
 }
 
 @keyframes pulseGlow {
-    0% {
-        transform: scale(0);
-        opacity: 0.8;
-    }
-    100% {
-        transform: scale(1.5);
-        opacity: 0.5;
-    }
+  0% {
+    transform: scale(0);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0.5;
+  }
 }
-
