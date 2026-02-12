@@ -358,22 +358,14 @@ document.addEventListener("DOMContentLoaded", function(event) {
             
             const lfoGain = audioCtx.createGain();
             
-            if (this.params.lfo.target === 'pitch') {
-                // Vibrato - modulate frequency
-                lfoGain.gain.value = this.frequency * 0.02 * this.params.lfo.depth;
-                
-                this.nodes.forEach(node => {
-                    if (node.frequency) {
-                        lfo.connect(lfoGain);
-                        lfoGain.connect(node.frequency);
-                    }
-                });
-            } else if (this.params.lfo.target === 'volume') {
-                // Tremolo - modulate volume
-                lfoGain.gain.value = this.params.lfo.depth * 0.3;
+            // Vibrato - modulate frequency
+            lfoGain.gain.value = this.frequency * 0.02 * this.params.lfo.depth;
+            this.nodes.forEach(node => {
+            if (node.frequency) {
                 lfo.connect(lfoGain);
-                lfoGain.connect(this.gainNode.gain);
+                lfoGain.connect(node.frequency);
             }
+            });
             
             lfo.start();
             this.nodes.push(lfo, lfoGain);
