@@ -33,8 +33,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
         
         // FM synthesis
         fm: {
-            modulationFreq: 200,
-            modulationIndex: 10,
+            modulationFreq: 2,
+            modulationIndex: 2,
             carrierWaveform: 'sine',  
             modulatorWaveform: 'sine'
         },
@@ -519,3 +519,4 @@ document.addEventListener("DOMContentLoaded", function(event) {
         });
     }
 })
+
