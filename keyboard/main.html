@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>homework 3</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Courier Prime', 'Courier New', monospace;
+      background: #000000;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 80px 20px;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 800px;
+    }
+
+    /* ── top controls ── */
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 40px;
+    }
+
+    select {
+      font-family: 'Courier Prime', monospace;
+      padding: 10px 36px 10px 16px;
+      font-size: 13px;
+      color: #d4a0ff;
+      border: 1px solid #3d0050;
+      border-radius: 3px;
+      cursor: pointer;
+      background: #0f0015;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23d4a0ff' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      transition: border-color 0.2s;
+    }
+
+    select:hover { border-color: #7a009a; }
+
+    button.start {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #f0e6ff;
+      background: #5f0076;
+      border: 1px solid #9b4dca;
+      padding: 10px 22px;
+      cursor: pointer;
+      outline: none;
+      appearance: none;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.2s, border-color 0.2s, transform 0.1s;
+    }
+
+    button.start::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 60% 40%, #9b4dca44 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    button.start:hover {
+      background: #7a009a;
+      border-color: #d4a0ff;
+    }
+
+    button.start:active { transform: scale(0.97); }
+
+    /* ── bird video ── */
+    #birdVideoWrapper, #brookVideoWrapper {
+      width: 100%;
+      border: 1px solid #3d0050;
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+      display: none;
+    }
+
+    #birdVideoWrapper::after, #brookVideoWrapper::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 40%, #00000099 100%);
+      pointer-events: none;
+    }
+
+    #birdVideo, #brookVideo {
+      width: 100%;
+      display: block;
+      opacity: 0.82;
+    }
+
+    /* ── sound view ── */
+    #soundView { width: 100%; display: flex; justify-content: center; }
+
+    /* ── blog view ── */
+    #blogView {
+      width: 100%;
+      display: none;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .blog-header {
+      border: 1px solid #5f0076;
+      border-bottom: none;
+      padding: 28px 32px 20px;
+      background: #0a000d;
+    }
+
+    .blog-header .tag {
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #9b4dca;
+      margin-bottom: 10px;
+    }
+
+    .blog-header h1 {
+      font-family: 'Space Mono', monospace;
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1.35;
+      color: #f0e6ff;
+    }
+
+    .blog-header .meta {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #64748b;
+      font-style: italic;
+    }
+
+    .blog-body {
+      border: 1px solid #5f0076;
+      padding: 32px;
+      background: #000000;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      line-height: 1.75;
+      font-size: 15px;
+      color: #cbd5e1;
+    }
+
+    .blog-body p { }
+
+    .blog-body h2 {
+      font-family: 'Space Mono', monospace;
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #9b4dca;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #1e0029;
+      margin-bottom: -10px;
+    }
+
+    .blog-body code {
+      font-family: 'Space Mono', monospace;
+      font-size: 13px;
+      background: #0f0015;
+      border: 1px solid #2d0040;
+      color: #d4a0ff;
+      padding: 2px 7px;
+      border-radius: 3px;
+    }
+
+    .code-block {
+      background: #080010;
+      border: 1px solid #2d0040;
+      border-left: 3px solid #5f0076;
+      padding: 18px 20px;
+      border-radius: 3px;
+      overflow-x: auto;
+    }
+
+    .code-block pre {
+      font-family: 'Space Mono', monospace;
+      font-size: 12.5px;
+      line-height: 1.65;
+      color: #c084fc;
+      margin: 0;
+      white-space: pre;
+    }
+
+    .code-block pre .c  { color: #4a3060; font-style: italic; }
+    .code-block pre .k  { color: #e879f9; }
+    .code-block pre .f  { color: #a78bfa; }
+    .code-block pre .n  { color: #f0abfc; }
+    .code-block pre .s  { color: #86efac; }
+
+    .diagram {
+      background: #080010;
+      border: 1px solid #2d0040;
+      border-radius: 3px;
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .diagram .caption {
+      font-size: 11px;
+      color: #4a3060;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-top: 10px;
+    }
+
+    .chain {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0;
+      justify-content: center;
+    }
+
+    .chain-node {
+      background: #1a0025;
+      border: 1px solid #5f0076;
+      border-radius: 5px;
+      padding: 8px 14px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: #d4a0ff;
+      white-space: nowrap;
+    }
+
+    .chain-arrow {
+      color: #5f0076;
+      font-size: 18px;
+      padding: 0 6px;
+    }
+
+    .waveform-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 50px;
+    }
+
+    .waveform-row .bar {
+      width: 5px;
+      background: #5f0076;
+      border-radius: 2px 2px 0 0;
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+
+    .callout {
+      background: #0a000d;
+      border-left: 3px solid #9b4dca;
+      padding: 14px 18px;
+      border-radius: 0 4px 4px 0;
+      font-size: 14px;
+      color: #a78bfa;
+      font-style: italic;
+    }
+
+    .sweep-viz {
+      width: 100%;
+      height: 70px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sweep-viz svg { width: 100%; height: 100%; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ── controls ── -->
+  <div class="controls">
+    <select id="soundSelect" onchange="handleSelectChange()">
+      <option value="birds">bird chirping</option>
+      <option value="brook">babbling brook</option>
+      <option value="blog">blog</option>
+    </select>
+    <button class="start" id="playBtn" onclick="togglePlay()">▶ play sound</button>
+  </div>
+
+  <!-- ── bird video (below controls, birds only) ── -->
+  <div id="birdVideoWrapper">
+    <video id="birdVideo" src="birds.mp4" autoplay loop muted playsinline></video>
+  </div>
+
+  <!-- ── brook video (below controls, brook only) ── -->
+  <div id="brookVideoWrapper">
+    <video id="brookVideo" src="brook.mp4" autoplay loop muted playsinline></video>
+  </div>
+
+  <!-- ── sound player ── -->
+  <div id="soundView"></div>
+
+  <!-- ── blog ── -->
+  <div id="blogView">
+
+    <div class="blog-header">
+      <div class="tag">homework 3 </div>
+      <h1>how i made the bird sound<br>with web audio</h1>
+     </div>
+
+    <div class="blog-body">
+
+      <h2>the signal flow</h2>
+
+      <p>
+        my strategy for making the bird sounds was to create an individual 'chirp' function, 
+        then repeat it at random intervals to sound like several birds chirping. then, i layered 'foreground' and 
+        'background' birds to give the listener some sense of spatial awareness.
+        finally, i added some brown noise to simulate the ambient sound of nature (similar to what i did 
+        with the babbling brook).
+      </p>
+
+      <h2>creating a single chirp</h2>
+
+      <p>
+       first, i created a function for a single chirp. the foreground and background chirp functions are similar, so i will just walk 
+       through the background chirps and note any interesting differences (overall, i added much more variability/randomness to 
+       the parameters compared to the background chirps).
+       </p>
+
+       <p>       
+       i started with a randomized base pitch, then i added a pitch envelope with a peak and a drop for each chirp to make it sound more realistic. 
+       i created some randomness for this envelope as well, so that when you play many chirps, there is variation in both the base pitch 
+       and the pitch shape.
+      </p>
+
+<div class="code-block"><pre>
+<span class="k">const</span> basePitch = <span class="n">2000</span> + Math.random() * <span class="n">1000</span>;
+<span class="k">const</span> osc = audioCtx.<span class="f">createOscillator</span>();
+osc.type = <span class="s">"sine"</span>;
+
+<span class="c">// pitch envelope</span>
+<span class="k">const</span> up   = basePitch * (<span class="n">1.1</span>  + Math.random() * <span class="n">0.1</span>);
+<span class="k">const</span> down = basePitch * (<span class="n">0.95</span> + Math.random() * <span class="n">0.05</span>);
+osc.frequency.<span class="f">setValueAtTime</span>(basePitch, time);
+osc.frequency.<span class="f">linearRampToValueAtTime</span>(up,   time + <span class="n">0.02</span>);
+osc.frequency.<span class="f">linearRampToValueAtTime</span>(down, time + <span class="n">0.1</span>);
+</pre></div>
+
+      <p>
+        then i made a gain envelope using linear and exponential ramps and adjusted the parameters to make it sound more snappy, and added an lfo for more complexity. 
+        for the foreground birds, i made the lfo gain much higher and with more randomness, creating that slight vibrato effect.
+      </p>
+
+<div class="code-block"><pre>
+<span class="k">const</span> gain = audioCtx.<span class="f">createGain</span>();
+gain.gain.<span class="f">setValueAtTime</span>(<span class="n">0</span>, time);
+gain.gain.<span class="f">linearRampToValueAtTime</span>(<span class="n">0.5</span>, time + <span class="n">0.03</span>);
+gain.gain.<span class="f">exponentialRampToValueAtTime</span>(<span class="n">0.001</span>, time + <span class="n">0.1</span>);
+
+<span class="k">const</span> lfo = audioCtx.<span class="f">createOscillator</span>();
+<span class="k">const</span> lfoGain = audioCtx.<span class="f">createGain</span>();
+lfo.frequency.value = <span class="n">6</span> + Math.random() * <span class="n">2</span>;
+lfoGain.gain.value = <span class="n">15</span>;
+lfo.<span class="f">connect</span>(lfoGain).<span class="f">connect</span>(osc.frequency);
+</pre></div>
+
+      <p>
+        next i added an lpf because the chirps sounded too harsh. i used a bandpass filter for the foreground birds.
+      </p>
+
+<div class="code-block"><pre>
+<span class="k">const</span> filter = audioCtx.<span class="f">createBiquadFilter</span>();
+filter.type = <span class="s">"lowpass"</span>;
+filter.frequency.value = <span class="n">3000</span>;
+</pre></div>
+
+      <p>
+        to make the birds more distant and ambient, i created a stereo panner node and randomized the 
+        pan value so that the chirps sound like they are coming from all directions in the background. the magnitude 
+        of the pan values was higher for background birds, whereas foreground pan values were lower so that the birds sounded 
+        more central.
+      </p>
+
+<div class="code-block"><pre>
+<span class="k">const</span> panner = audioCtx.<span class="f">createStereoPanner</span>();
+panner.pan.value = (Math.random() &lt; <span class="n">0.5</span> ? <span class="n">-1</span> : <span class="n">1</span>) * (<span class="n">0.6</span> + Math.random() * <span class="n">0.4</span>);
+</pre></div>
+
+      <h2>SCHEDULING CHIRPS</h2>
+
+      <p>
+        to make the chrips play naturally, i made a function to schedule the chirps in a semi-random 
+        fashion. 
+      </p>
+
+      <p>        
+        i scheduled "bursts" of chirps, each with a slightly randomized duration.
+        after this burst of notes, i let the bird "rest" for a couple seconds before the loop starts again. 
+        due to this intentional randomness, the bird chirps fluctuated both in count and in rhythm, while still sounding 
+        pretty natural (in my opinion).
+      </p>
+
+      <p>
+        then i set the number of background birds so that the chirps would layer over one another nicely. 
+        i played around with the base count and decided on 3 because it sounded realistic and not too hectic. i set the base number of foreground birds 
+        to just 1.
+      </p>
+
+<div class="code-block"><pre>
+<span class="k">function</span> <span class="f">scheduleBird</span>() {
+  <span class="k">if</span> (!running || document.<span class="f">getElementById</span>(<span class="s">"soundSelect"</span>).value !== <span class="s">"birds"</span>) <span class="k">return</span>;
+  <span class="k">const</span> now = audioCtx.currentTime;
+  <span class="k">const</span> notes = <span class="n">3</span> + Math.<span class="f">floor</span>(Math.random() * <span class="n">3</span>);
+  <span class="k">for</span> (<span class="k">let</span> i = <span class="n">0</span>; i &lt; notes; i++) <span class="f">createChirp</span>(now + i * (<span class="n">0.15</span> + Math.random() * <span class="n">0.1</span>));
+  <span class="k">const</span> delay = <span class="n">1500</span> + Math.random() * <span class="n">1000</span>;
+  <span class="k">const</span> timer = <span class="f">setTimeout</span>(<span class="f">scheduleBird</span>, delay);
+  birdTimers.<span class="f">push</span>(timer);
+}
+
+<span class="k">function</span> <span class="f">startBirds</span>() {
+  birdTimers = [];
+  <span class="k">const</span> birdCount = <span class="n">3</span>;
+  <span class="k">for</span> (<span class="k">let</span> i = <span class="n">0</span>; i &lt; birdCount; i++) <span class="f">scheduleBird</span>();
+}
+
+<span class="k">function</span> <span class="f">stopBirds</span>() {
+  birdTimers.<span class="f">forEach</span>(t =&gt; <span class="f">clearTimeout</span>(t));
+  birdTimers = [];
+}
+</pre></div>
+
+      <p>
+        i played around with parameters for the foreground birds, mainly adding more randomness to their duration and number of chirps!
+      </p>
+
+
+    <p>using Audion, this is what the audio signal flow looks like:</p>
+    <img src="audion.jpg" alt="Audion signal flow diagram">
+
+
+      <h2>brown noise</h2>
+
+      <p>
+        finally, to make it sound like we are in a forest or wilderness preserve or something, 
+        i added the brown noise code snippet given in the assignment description. i made the gain pretty low since it's more of a background noise.
+      </p>
+      
+<div class="code-block"><pre>
+<span class="k">function</span> <span class="f">createBrownNoise</span>() {
+  <span class="k">const</span> bufferSize = <span class="n">10</span> * audioCtx.sampleRate;
+  <span class="k">const</span> noiseBuffer = audioCtx.<span class="f">createBuffer</span>(<span class="n">1</span>, bufferSize, audioCtx.sampleRate);
+  <span class="k">const</span> output = noiseBuffer.<span class="f">getChannelData</span>(<span class="n">0</span>);
+  <span class="k">let</span> lastOut = <span class="n">0</span>;
+  <span class="k">for</span> (<span class="k">let</span> i = <span class="n">0</span>; i &lt; bufferSize; i++) {
+    <span class="k">const</span> brown = Math.random() * <span class="n">2</span> - <span class="n">1</span>;
+    output[i] = (lastOut + (<span class="n">0.02</span> * brown)) / <span class="n">1.02</span>;
+    lastOut = output[i];
+    output[i] *= <span class="n">3.5</span>;
+  }
+  <span class="k">const</span> brownNoise = audioCtx.<span class="f">createBufferSource</span>();
+  brownNoise.buffer = noiseBuffer;
+  brownNoise.loop = <span class="k">true</span>;
+  <span class="k">return</span> brownNoise;
+}
+
+<span class="k">function</span> <span class="f">startBrownNoise</span>() {
+  brownNoiseNode = <span class="f">createBrownNoise</span>();
+  brownGain = audioCtx.<span class="f">createGain</span>();
+  brownGain.gain.value = <span class="n">0.05</span>;
+  brownNoiseNode.<span class="f">connect</span>(brownGain).<span class="f">connect</span>(audioCtx.destination);
+  brownNoiseNode.<span class="f">start</span>();
+}
+
+<span class="k">function</span> <span class="f">stopBrownNoise</span>() {
+  <span class="k">if</span> (brownNoiseNode) {
+    brownNoiseNode.<span class="f">stop</span>();
+    brownNoiseNode.<span class="f">disconnect</span>();
+    brownNoiseNode = <span class="k">null</span>;
+  }
+}
+</pre></div>
+
+      <p>
+        that's how i made the bird sounds!! thank you for reading!
+      </p>
+
+  </div>
+
+</div>
+
+<script>
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let running = false;
+let birdTimers = [];
+let brownNoiseNode, brownGain;
+let brookNoise;
+
+// ── show/hide video based on selection ──
+function updateVideoVisibility() {
+  const selected = document.getElementById("soundSelect").value;
+  document.getElementById("birdVideoWrapper").style.display  = selected === "birds" ? "block" : "none";
+  document.getElementById("brookVideoWrapper").style.display = selected === "brook" ? "block" : "none";
+}
+
+// initialise on load
+updateVideoVisibility();
+
+// ── brown noise ──
+function createBrownNoise() {
+  const bufferSize = 10 * audioCtx.sampleRate;
+  const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+  const output = noiseBuffer.getChannelData(0);
+  let lastOut = 0;
+  for (let i = 0; i < bufferSize; i++) {
+    const brown = Math.random() * 2 - 1;
+    output[i] = (lastOut + (0.02 * brown)) / 1.02;
+    lastOut = output[i];
+    output[i] *= 3.5;
+  }
+  const brownNoise = audioCtx.createBufferSource();
+  brownNoise.buffer = noiseBuffer;
+  brownNoise.loop = true;
+  return brownNoise;
+}
+
+function startBrownNoise() {
+  brownNoiseNode = createBrownNoise();
+  brownGain = audioCtx.createGain();
+  brownGain.gain.value = 0.05;
+  brownNoiseNode.connect(brownGain).connect(audioCtx.destination);
+  brownNoiseNode.start();
+}
+
+function stopBrownNoise() {
+  if (brownNoiseNode) { brownNoiseNode.stop(); brownNoiseNode.disconnect(); brownNoiseNode = null; }
+}
+
+// background layer
+function createBgChirp(time) {
+  const basePitch = 2000 + Math.random() * 3000;
+  const osc = audioCtx.createOscillator();
+  osc.type = "sine";
+
+  // pitch envelope
+  const up   = basePitch * (1.08 + Math.random() * 0.06);
+  const down = basePitch * (0.92 + Math.random() * 0.04);
+  osc.frequency.setValueAtTime(basePitch, time);
+  osc.frequency.linearRampToValueAtTime(up,   time + 0.03);
+  osc.frequency.linearRampToValueAtTime(down, time + 0.12);
+
+  // lfo
+  const lfo     = audioCtx.createOscillator();
+  const lfoGain = audioCtx.createGain();
+  lfo.frequency.value = 5 + Math.random() * 3;
+  lfoGain.gain.value  = 8;
+  lfo.connect(lfoGain).connect(osc.frequency);
+
+  const gain = audioCtx.createGain();
+  gain.gain.setValueAtTime(0, time);
+  gain.gain.linearRampToValueAtTime(0.03 + Math.random() * 0.03, time + 0.04);
+  gain.gain.exponentialRampToValueAtTime(0.001, time + 0.25);
+
+  // lpf
+  const filter = audioCtx.createBiquadFilter();
+  filter.type = "lowpass";
+  filter.frequency.value = 3000;
+  filter.Q.value = 1;
+
+  // push bg birds to the sides
+  const panner = audioCtx.createStereoPanner();
+  panner.pan.value = (Math.random() < 0.5 ? -1 : 1) * (0.6 + Math.random() * 0.4);
+
+  osc.connect(filter).connect(gain).connect(panner).connect(audioCtx.destination);
+  osc.start(time); lfo.start(time);
+  osc.stop(time + 0.4); lfo.stop(time + 0.4);
+}
+
+let bgBirdTimers = [];
+
+function scheduleBgBird() {
+  if (!running || document.getElementById("soundSelect").value !== "birds") return;
+  const now   = audioCtx.currentTime;
+  const burst = 3 + Math.floor(Math.random() * 5);
+  for (let i = 0; i < burst; i++) {
+    createBgChirp(now + i * (0.06 + Math.random() * 0.15));
+  }
+  const timer = setTimeout(scheduleBgBird, 400 + Math.random() * 800);
+  bgBirdTimers.push(timer);
+}
+
+function startBgBirds() {
+  bgBirdTimers = [];
+  const flockSize = 2; 
+  for (let i = 0; i < flockSize; i++) {
+    bgBirdTimers.push(setTimeout(scheduleBgBird, Math.random() * 1200));
+  }
+}
+
+function stopBgBirds() {
+  bgBirdTimers.forEach(t => clearTimeout(t));
+  bgBirdTimers = [];
+}
+
+// ── foreground layer: longer melodic chirps ──
+const pentatonic = [1, 1.01, 1.03, 0.98, 0.99]; // major pentatonic ratios
+
+function createFgChirp(time) {
+  const root = 1800 + Math.random() * 2000;
+
+  // note count and gap between notes both wildly variable
+  const noteCount = 2 + Math.floor(Math.random() * 6);
+  const baseGap   = 0.01 + Math.random() * 0.2; // each phrase has its own rhythm feel
+  let cursor = time;
+
+  for (let n = 0; n < noteCount; n++) {
+    const pitch   = root * (0.85 + Math.random() * 0.1);
+    const noteDur = 0.03 + Math.random() * 0.3; // anywhere from a blip to a long hold
+    const gap     = baseGap * (0.5 + Math.random()); // vary within the phrase too
+
+    const osc = audioCtx.createOscillator();
+    osc.type = Math.random() < 0.5 ? "triangle" : "sine";
+
+    const mid    = pitch * (0.95  + Math.random() * 0.05);
+    const endPit = pitch * (0.85 + Math.random() * 0.1);
+    osc.frequency.setValueAtTime(pitch, cursor);
+    osc.frequency.linearRampToValueAtTime(mid,    cursor + noteDur * 0.4);
+    osc.frequency.linearRampToValueAtTime(endPit, cursor + noteDur);
+
+    const vib     = audioCtx.createOscillator();
+    const vibGain = audioCtx.createGain();
+    vib.frequency.value = 6 + Math.random() * 10;
+    vibGain.gain.value  = 10 + Math.random() * 60;
+    vib.connect(vibGain).connect(osc.frequency);
+
+    const gain = audioCtx.createGain();
+    gain.gain.setValueAtTime(0, cursor);
+    gain.gain.linearRampToValueAtTime(0.18 + Math.random() * 0.1, cursor + Math.min(0.02, noteDur * 0.2));
+    gain.gain.setValueAtTime(0.18 + Math.random() * 0.1, cursor + noteDur - Math.min(0.04, noteDur * 0.2));
+    gain.gain.exponentialRampToValueAtTime(0.001, cursor + noteDur);
+
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.frequency.value = pitch;
+    filter.Q.value = 15 + Math.random() * 3;
+
+    const panner = audioCtx.createStereoPanner();
+    panner.pan.value = (Math.random() * 2 - 1) * 0.5;
+
+    osc.connect(filter).connect(gain).connect(panner).connect(audioCtx.destination);
+    osc.start(cursor); vib.start(cursor);
+    const end = cursor + noteDur + 0.05;
+    osc.stop(end); vib.stop(end);
+
+    cursor += noteDur + gap;
+  }
+}
+
+let fgBirdTimers = [];
+
+function scheduleFgBird() {
+  if (!running || document.getElementById("soundSelect").value !== "birds") return;
+
+  createFgChirp(audioCtx.currentTime);
+
+  // random chance of a quick follow-up burst
+  if (Math.random() < 0.4) {
+    const extraCount = 1 + Math.floor(Math.random() * 3);
+    for (let i = 1; i <= extraCount; i++) {
+      const offset = i * (0.15 + Math.random() * 0.4);
+      fgBirdTimers.push(setTimeout(() => {
+        if (!running) return;
+        createFgChirp(audioCtx.currentTime);
+      }, offset * 1000));
+    }
+  }
+
+  // wildly variable delay before next phrase — sometimes quick, sometimes long pause
+  const delay = Math.random() < 0.2
+    ? 300  + Math.random() * 700     // 20% chance: rapid response, 0.3–1s
+    : 1500 + Math.random() * 5000;   // 80% chance: natural pause, 1.5–6.5s
+
+  fgBirdTimers.push(setTimeout(scheduleFgBird, delay));
+}
+
+function startFgBirds() {
+  fgBirdTimers = [];
+  // slight delay so bg layer establishes first
+  fgBirdTimers.push(setTimeout(scheduleFgBird, 1000));
+}
+
+function stopFgBirds() {
+  fgBirdTimers.forEach(t => clearTimeout(t));
+  fgBirdTimers = [];
+}
+
+function startBirds() {
+  startBgBirds();
+  startFgBirds();
+}
+
+function stopBirds() {
+  stopBgBirds();
+  stopFgBirds();
+}
+
+// ── brook ──
+function startBrook() {
+  const bufferSize = 10 * audioCtx.sampleRate;
+  const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+  const output = noiseBuffer.getChannelData(0);
+  let lastOut = 0;
+  for (let i = 0; i < bufferSize; i++) {
+    const brown = Math.random() * 2 - 1;
+    output[i] = (lastOut + (0.02 * brown)) / 1.02;
+    lastOut = output[i];
+    output[i] *= 3.5;
+  }
+  brookNoise = audioCtx.createBufferSource();
+  brookNoise.buffer = noiseBuffer;
+  brookNoise.loop = true;
+  const audio_lpf = audioCtx.createBiquadFilter();
+  audio_lpf.type = "lowpass";
+  audio_lpf.frequency.value = 400;
+  const hpf = audioCtx.createBiquadFilter();
+  hpf.type = "highpass";
+  hpf.Q.value = 1 / 0.03;
+  const outputGain = audioCtx.createGain();
+  outputGain.gain.value = 0.15;
+  brookNoise.connect(audio_lpf).connect(hpf).connect(outputGain).connect(audioCtx.destination);
+  const modulate_noise = audioCtx.createBufferSource();
+  const mod_buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+  const mod_out = mod_buffer.getChannelData(0);
+  lastOut = 0;
+  for (let i = 0; i < bufferSize; i++) {
+    const brown = Math.random() * 2 - 1;
+    mod_out[i] = (lastOut + (0.02 * brown)) / 1.02;
+    lastOut = mod_out[i];
+    mod_out[i] *= 3.5;
+  }
+  modulate_noise.buffer = mod_buffer;
+  modulate_noise.loop = true;
+  const filter_lpf = audioCtx.createBiquadFilter();
+  filter_lpf.type = "lowpass";
+  filter_lpf.frequency.value = 14;
+  const gainNode = audioCtx.createGain();
+  gainNode.gain.value = 1500;
+  const offset = audioCtx.createConstantSource();
+  offset.offset.value = 150;
+  modulate_noise.connect(filter_lpf).connect(gainNode).connect(hpf.frequency);
+  offset.connect(hpf.frequency);
+  offset.start(); modulate_noise.start(); brookNoise.start();
+}
+
+function stopBrook() {
+  if (brookNoise) { brookNoise.stop(); brookNoise.disconnect(); brookNoise = null; }
+}
+
+// ── tab switching ──
+function handleSelectChange() {
+  const selected = document.getElementById("soundSelect").value;
+  const blogView  = document.getElementById("blogView");
+  const soundView = document.getElementById("soundView");
+  const btn = document.getElementById("playBtn");
+
+  updateVideoVisibility();
+
+  if (selected === "blog") {
+    blogView.style.display  = "flex";
+    soundView.style.display = "none";
+    btn.style.display = "none";
+    if (running) {
+      audioCtx.suspend();
+      running = false;
+      stopBirds(); stopBrownNoise(); stopBrook();
+    }
+  } else {
+    blogView.style.display  = "none";
+    soundView.style.display = "flex";
+    btn.style.display = "";
+    btn.textContent = "▶ play sound";
+  }
+}
+
+// ── play/pause ──
+function togglePlay() {
+  const selected = document.getElementById("soundSelect").value;
+  const btn = document.getElementById("playBtn");
+  if (!running) {
+    audioCtx.resume().then(() => {
+      running = true;
+      btn.textContent = "⏸ pause sound";
+      if (selected === "birds") { startBrownNoise(); startBirds(); }
+      if (selected === "brook") startBrook();
+    });
+  } else {
+    audioCtx.suspend().then(() => {
+      running = false;
+      btn.textContent = "▶ play sound";
+      stopBirds(); stopBrownNoise(); stopBrook();
+    });
+  }
+}
+</script>
+
+</body>
+</html>
